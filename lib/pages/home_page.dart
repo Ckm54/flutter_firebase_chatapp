@@ -220,7 +220,23 @@ class _HomePageState extends State<HomePage> {
                   child: const Text('CANCEL')),
               ElevatedButton(
                   onPressed: () async {
-                    
+                    if (groupName != "") {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      DatabaseService(
+                              uid: FirebaseAuth.instance.currentUser!.uid)
+                          .createGroup(userName,
+                              FirebaseAuth.instance.currentUser!.uid, groupName)
+                          .whenComplete(() {
+                        setState(() {
+                          _isLoading = false;
+                          Navigator.of(context).pop();
+                          showSnackBar(context, Colors.green,
+                              "Group created successfully.");
+                        });
+                      });
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor),
