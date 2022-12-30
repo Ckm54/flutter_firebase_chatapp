@@ -31,8 +31,14 @@ class _HomePageState extends State<HomePage> {
     gettingUserData();
   }
 
-  //* perform string manipulations
-  
+  //* perform string manipulations --- get group id and name
+  String getId(String res) {
+    return res.substring(0, res.indexOf("_"));
+  }
+
+  String getName(String res) {
+    return res.substring(res.indexOf("_") + 1);
+  }
 
   gettingUserData() async {
     await HelperFunctions.getUserEmaiFromSF().then((value) {
@@ -266,7 +272,14 @@ class _HomePageState extends State<HomePage> {
               return ListView.builder(
                 itemCount: snapshot.data['groups'].length,
                 itemBuilder: (context, index) {
-                  return GroupTile(groupId: groupId, userName: userName, groupName: groupName);
+
+                  //* order groups from the most recent one to display on top of the list
+                  int reverseIndex = snapshot.data['groups'].length - index - 1;
+
+                  return GroupTile(
+                      groupId: getId(snapshot.data['groups'][reverseIndex]),
+                      userName: snapshot.data['fullName'],
+                      groupName: getName(snapshot.data['groups'][reverseIndex]));
                 },
               );
             } else {
