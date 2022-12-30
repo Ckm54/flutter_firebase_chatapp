@@ -4,6 +4,7 @@ import 'package:chatapp_firebase/pages/profile_page.dart';
 import 'package:chatapp_firebase/pages/search_page.dart';
 import 'package:chatapp_firebase/service/auth_service.dart';
 import 'package:chatapp_firebase/service/database_service.dart';
+import 'package:chatapp_firebase/widgets/group_tile.dart';
 import 'package:chatapp_firebase/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     gettingUserData();
   }
+
+  //* perform string manipulations
+  
 
   gettingUserData() async {
     await HelperFunctions.getUserEmaiFromSF().then((value) {
@@ -176,7 +180,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              title: Text(_isLoading ? "Creating group" : "Create a group", textAlign: TextAlign.left),
+              title: Text(_isLoading ? "Creating group" : "Create a group",
+                  textAlign: TextAlign.left),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -258,7 +263,12 @@ class _HomePageState extends State<HomePage> {
         if (snapshot.hasData) {
           if (snapshot.data['groups'] != null) {
             if (snapshot.data['groups'].length != 0) {
-              return Text('Hello');
+              return ListView.builder(
+                itemCount: snapshot.data['groups'].length,
+                itemBuilder: (context, index) {
+                  return GroupTile(groupId: groupId, userName: userName, groupName: groupName);
+                },
+              );
             } else {
               return noGroupWidget();
             }
