@@ -87,4 +87,18 @@ class DatabaseService {
   searchGroupByname(String groupName) {
     return groupCollection.where("groupName", isEqualTo: groupName).get();
   }
+
+  // check if user has joined a group --> bool
+  Future<bool> isUserJoined(
+      String groupName, String groupId, String userName) async {
+    DocumentReference documentReference = userCollection.doc(uid);
+    DocumentSnapshot documentSnapshot = await documentReference.get();
+
+    List<dynamic> groups = await documentSnapshot["groups"];
+    if (groups.contains("${groupId}_$groupName")) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
