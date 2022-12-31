@@ -77,4 +77,9 @@ class DatabaseService {
     // return group admin
     return documentSnapshot["admin"];
   }
+
+  // getting group members
+  getGroupMembers(String groupId) async {
+    return groupCollection.doc(groupId).snapshots();
+  }
 }
