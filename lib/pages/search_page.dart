@@ -18,6 +18,7 @@ class _SearchPageState extends State<SearchPage> {
   bool hasUserSearched = false;
   String userName = "";
   User? user;
+  bool isJoined = false;
 
   @override
   void initState() {
@@ -33,6 +34,15 @@ class _SearchPageState extends State<SearchPage> {
       });
     });
     user = FirebaseAuth.instance.currentUser;
+  }
+
+  //* Perform string manipulations
+  String getName(String res) {
+    return res.substring(res.indexOf("_") + 1);
+  }
+
+  String getId(String res) {
+    return res.substring(0, res.indexOf("_"));
   }
 
   @override
@@ -120,14 +130,28 @@ class _SearchPageState extends State<SearchPage> {
             itemCount: searchSnapshot!.docs.length,
             itemBuilder: (context, index) {
               return grouptile(
-                userName: userName,
-                groupId: searchSnapshot!.docs[index]["groupId"],
-                groupName: searchSnapshot!.docs[index]["groupName"],
-                admin: searchSnapshot!.docs[index]["admin"]
-              );
+                  userName: userName,
+                  groupId: searchSnapshot!.docs[index]["groupId"],
+                  groupName: searchSnapshot!.docs[index]["groupName"],
+                  admin: searchSnapshot!.docs[index]["admin"]);
             },
           )
         : Container();
+  }
+
+  //* Function to check whether or not a user has joined a group
+  joinedOrNot(
+      {required String userName,
+      required String groupId,
+      required String groupName,
+      required String admin}) async {
+    await DatabaseService(uid: user!.uid)
+        .isUserJoined(groupName, groupId, userName)
+        .then((value) {
+      setState(() {
+        isJoined = value;
+      });
+    });
   }
 
   //* Tile representing each group data
@@ -136,6 +160,49 @@ class _SearchPageState extends State<SearchPage> {
       required String groupId,
       required String groupName,
       required String admin}) {
-    return Text("Hello");
+    // function to check whether user already exists in group
+    joinedOrNot(
+        userName: userName,
+        groupId: groupId,
+        groupName: groupName,
+        admin: admin);
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      leading: CircleAvatar(
+        radius: 30,
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Text(
+          groupName.substring(0, 1).toUpperCase(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      title:
+          Text(groupName, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Text("Admin: ${getName(admin)}"),
+      trailing: InkWell(
+        onTap: () async {},
+        child: isJoined
+            ? Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black,
+                    border: Border.all(color: Colors.white)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child:
+                    const Text("Joined", style: TextStyle(color: Colors.white)),
+              )
+            : Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Theme.of(context).primaryColor,
+                    border: Border.all(color: Colors.white)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child:
+                    const Text("Join Now", style: TextStyle(color: Colors.white)),
+              ),
+      ),
+    );
   }
 }
