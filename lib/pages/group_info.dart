@@ -57,7 +57,6 @@ class _GroupInfoState extends State<GroupInfo> {
 
   @override
   Widget build(BuildContext context) {
-    print(currentUserName);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
