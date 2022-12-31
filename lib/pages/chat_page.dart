@@ -1,5 +1,7 @@
 import 'package:chatapp_firebase/pages/group_info.dart';
+import 'package:chatapp_firebase/service/database_service.dart';
 import 'package:chatapp_firebase/widgets/widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
@@ -19,12 +21,27 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  // stream to get chats
+  Stream<QuerySnapshot>? chats;
   String admin = "";
 
   @override
   void initState() {
     getChatAndAdmin();
     super.initState();
+  }
+
+  getChatAndAdmin() {
+    DatabaseService().getChats(widget.groupId).then((val) {
+      setState(() {
+        chats = val;
+      });
+    });
+    DatabaseService().getGroupAdmin(widget.groupId).then((value) {
+      setState(() {
+        admin = value;
+      });
+    });
   }
 
   @override
@@ -40,7 +57,7 @@ class _ChatPageState extends State<ChatPage> {
               onPressed: () {
                 nextScreen(
                     context,
-                    const GroupInfo(
+                    GroupInfo(
                       groupId: widget.groupId,
                       groupName: widget.groupName,
                       adminName: admin,
