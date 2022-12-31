@@ -1,4 +1,7 @@
+import 'package:chatapp_firebase/helper/helper_functions.dart';
+import 'package:chatapp_firebase/pages/home_page.dart';
 import 'package:chatapp_firebase/service/database_service.dart';
+import 'package:chatapp_firebase/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +23,7 @@ class GroupInfo extends StatefulWidget {
 
 class _GroupInfoState extends State<GroupInfo> {
   Stream? members;
+  String currentUserName = "";
 
   @override
   void initState() {
@@ -35,6 +39,11 @@ class _GroupInfoState extends State<GroupInfo> {
         members = val;
       });
     });
+    await HelperFunctions.getUsernameFromSF().then((value) {
+      setState(() {
+        currentUserName = value!;
+      });
+    });
   }
 
   //* Perform string manipulations
@@ -48,6 +57,7 @@ class _GroupInfoState extends State<GroupInfo> {
 
   @override
   Widget build(BuildContext context) {
+    print(currentUserName);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -55,7 +65,42 @@ class _GroupInfoState extends State<GroupInfo> {
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Group Info'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.exit_to_app))
+          IconButton(
+              onPressed: () {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("Exit"),
+                        content: Text(
+                            "Are you sure you want to exit the group ${widget.groupName}?"),
+                        actions: [
+                          IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon:
+                                  const Icon(Icons.cancel, color: Colors.red)),
+                          IconButton(
+                              onPressed: () {
+                                DatabaseService(
+                                        uid: FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                    .toggleGroupJoin(
+                                        widget.groupId,
+                                        getName(currentUserName),
+                                        widget.groupName)
+                                    .whenComplete(() {
+                                  nextScreenReplace(context, const HomePage());
+                                });
+                              },
+                              icon: const Icon(Icons.done, color: Colors.green))
+                        ],
+                      );
+                    });
+              },
+              icon: const Icon(Icons.exit_to_app))
         ],
       ),
       body: Container(
