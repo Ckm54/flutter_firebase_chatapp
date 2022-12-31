@@ -66,7 +66,7 @@ class _GroupInfoState extends State<GroupInfo> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).primaryColor.withOpacity(.2),
+                color: Theme.of(context).primaryColor.withOpacity(0.2),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
